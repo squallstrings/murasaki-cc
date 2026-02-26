@@ -1,0 +1,21 @@
+# Windows build artifacts
+*.exe
+*.obj
+*.pdb
+*.ilk
+
+# Generated compiler output
+output.c
+program.exe
+
+# Temporary files
+*.log
+*.tmp
+
+# VS / editor noise
+.vscode/
+*.swp
+*.swo
+
+# OS junk
+Thumbs.db
