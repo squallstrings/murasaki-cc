@@ -1,10 +1,12 @@
-# Windows build artifacts
+# Build outputs
 *.exe
+*.out
 *.obj
+*.o
 *.pdb
 *.ilk
 
-# Generated compiler output
+# Generated files
 output.c
 program.exe
 
@@ -12,10 +14,14 @@ program.exe
 *.log
 *.tmp
 
-# VS / editor noise
+# Editor folders
 .vscode/
+.idea/
+
+# Swap files
 *.swp
 *.swo
 
 # OS junk
 Thumbs.db
+.DS_Store

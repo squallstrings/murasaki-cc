@@ -1,16 +1,14 @@
-#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
-#include "token.h"
+#include "lexer.h"
+#include "parser.h"
+#include "interpreter.h"
 
-
-void init_lexer(const char *input);
-Token next_token(void);
-
-char *read_file(const char *filename) {
+char* read_file(const char *filename) {
     FILE *f = fopen(filename, "rb");
     if (!f) {
-        return NULL;
+        perror("Failed to open file");
+        exit(1);
     }
 
     fseek(f, 0, SEEK_END);
@@ -19,8 +17,8 @@ char *read_file(const char *filename) {
 
     char *buffer = malloc(size + 1);
     if (!buffer) {
-        fclose(f);
-        return NULL;
+        fprintf(stderr, "Out of memory\n");
+        exit(1);
     }
 
     fread(buffer, 1, size, f);
@@ -30,28 +28,21 @@ char *read_file(const char *filename) {
     return buffer;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char **argv) {
     if (argc < 2) {
-        printf("feed me files\n");
+        printf("Usage: murasaki-cc <file>\n");
         return 1;
     }
 
     char *source = read_file(argv[1]);
- if (!source) {
-    perror("File open failed");
-    return 1;
-}
+
     init_lexer(source);
 
-    Token t;
+    ASTNode *program = parse_program(next_token);
 
-    printf("TOKENS\n");
+    interpret(program);
 
-    do {
-        t = next_token();
-        printf("Token: %d  Value: %ld\n", t.type, t.value);
-    } while (t.type != TOKEN_EOF);
-
+    free_ast(program);
     free(source);
 
     return 0;
