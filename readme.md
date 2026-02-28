@@ -1,8 +1,8 @@
-Murasaki-CC
+# Murasaki-CC
 
 A small C-written compiler front-end and interpreter for a minimal expression language.
 
-Features
+# Features
 
 File loading
 
@@ -18,7 +18,7 @@ Tree-walk interpreter
 
 Dynamic memory management
 
-Example
+# Example
 
 Input:
 
@@ -29,7 +29,7 @@ Output:
 
 6
 11
-Architecture
+# Architecture
 source file
    ↓
 lexer
@@ -39,7 +39,7 @@ parser
 AST
    ↓
 interpreter
-Build
+# Build
 
 Using clang:
 
