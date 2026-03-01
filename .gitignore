@@ -1,4 +1,4 @@
-# Build outputs
+
 *.exe
 *.out
 *.obj
@@ -6,22 +6,22 @@
 *.pdb
 *.ilk
 
-# Generated files
+
 output.c
 program.exe
 
-# Temporary files
+
 *.log
 *.tmp
 
-# Editor folders
+
 .vscode/
 .idea/
 
-# Swap files
+
 *.swp
 *.swo
 
-# OS junk
+
 Thumbs.db
 .DS_Store

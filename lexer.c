@@ -67,6 +67,15 @@ Token next_token() {
         advance();
         return (Token){TOKEN_MINUS, 0};
     }
+    if (c == '*') {
+        advance();
+        return (Token){TOKEN_STAR, 0};
+}
+
+    if (c == '/') {
+        advance();
+        return (Token){TOKEN_SLASH, 0};
+}
 
     if (c == ';') {
         advance();
