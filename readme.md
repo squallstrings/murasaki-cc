@@ -30,15 +30,7 @@ Output:
 6
 11
 # Architecture
-source file
-   ↓
-lexer
-   ↓
-parser
-   ↓
-AST
-   ↓
-interpreter
+source file -> lexer -> parser -> AST  -> interpreter
 # Build
 
 Using clang:
@@ -46,3 +38,5 @@ Using clang:
 clang main.c lexer.c parser.c interpreter.c -o murasaki-cc
 Run
 ./murasaki-cc test.mr
+OR
+.\murasaki-cc test.mr (windows powershell)
