@@ -3,6 +3,7 @@
 #include "lexer.h"
 #include "parser.h"
 #include "interpreter.h"
+#include "codegen.h"
 
 char* read_file(const char *filename) {
     FILE *f = fopen(filename, "rb");
@@ -40,8 +41,8 @@ int main(int argc, char **argv) {
 
     ASTNode *program = parse_program(next_token);
 
-    interpret(program);
-
+  generate_c(program);
+    system("clang output.c -o program.exe");
     free_ast(program);
     free(source);
 

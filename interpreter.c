@@ -13,12 +13,19 @@ static long eval_binary(ASTNode *node) {
             return left + right;
         case '-':
             return left - right;
+        case '*':
+            return left * right;
+        case '/':
+            if (right == 0) {
+                fprintf(stderr, "Runtime error: division by zero\n");
+                exit(1);
+            }
+            return left / right;
         default:
             fprintf(stderr, "Runtime error: unknown operator '%c'\n", node->binary.op);
             exit(1);
     }
 }
-
 static long eval_node(ASTNode *node) {
     switch (node->type) {
 

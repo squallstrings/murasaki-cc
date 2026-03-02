@@ -2,43 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "token.h"
-
-typedef enum {
-    AST_NUMBER,
-    AST_BINARY,
-    AST_PRINT,
-    AST_PROGRAM
-} ASTNodeType;
-
-typedef struct ASTNode ASTNode;
-
-struct ASTNode {
-    ASTNodeType type;
-    union {
-        struct {
-            long value;
-        } number;
-
-        struct {
-            ASTNode *left;
-            ASTNode *right;
-            char op;
-        } binary;
-
-        struct {
-            ASTNode *expr;
-        } print_stmt;
-
-        struct {
-            ASTNode **statements;
-            size_t count;
-            size_t capacity;
-        } program;
-    };
-};
+#include "ast.h"
 
 static Token current;
-static Token (*next_tok_fn)();
+static Token (*next_tok_fn)(void);
 
 static void parser_error(const char *msg) {
     fprintf(stderr, "Parse error: %s\n", msg);
@@ -64,9 +31,9 @@ static void expect(TokenType t, const char *msg) {
 }
 
 static ASTNode* new_node(ASTNodeType t) {
-    ASTNode *n = (ASTNode*)malloc(sizeof(ASTNode));
+    ASTNode *n = malloc(sizeof(ASTNode));
     if (!n) {
-        fprintf(stderr, "No mem\n");
+        fprintf(stderr, "Out of memory\n");
         exit(1);
     }
     n->type = t;
@@ -102,12 +69,9 @@ static ASTNode* new_program() {
 }
 
 static void program_push(ASTNode *prog, ASTNode *stmt) {
-    if (prog->type != AST_PROGRAM) {
-        parser_error("Internal: not a program node");
-    }
     if (prog->program.count == prog->program.capacity) {
         size_t newcap = prog->program.capacity ? prog->program.capacity * 2 : 8;
-        ASTNode **newarr = (ASTNode**)realloc(prog->program.statements, newcap * sizeof(ASTNode*));
+        ASTNode **newarr = realloc(prog->program.statements, newcap * sizeof(ASTNode*));
         if (!newarr) {
             fprintf(stderr, "Out of memory\n");
             exit(1);
@@ -118,16 +82,37 @@ static void program_push(ASTNode *prog, ASTNode *stmt) {
     prog->program.statements[prog->program.count++] = stmt;
 }
 
+
 static ASTNode* parse_expression();
 
-static ASTNode* parse_term() {
+static ASTNode* parse_factor() {
     if (current.type == TOKEN_NUMBER) {
         long v = current.value;
         advance_token();
         return new_number(v);
     }
-    parser_error("Expected number");
+
+    if (current.type == TOKEN_LPAREN) {
+        advance_token();
+        ASTNode *expr = parse_expression();
+        expect(TOKEN_RPAREN, "Expected ')'");
+        return expr;
+    }
+
+    parser_error("Expected number or '('");
     return NULL;
+}
+static ASTNode* parse_term() {
+    ASTNode *left = parse_factor();
+
+    while (current.type == TOKEN_STAR || current.type == TOKEN_SLASH) {
+        char op = (current.type == TOKEN_STAR) ? '*' : '/';
+        advance_token();
+        ASTNode *right = parse_factor();
+        left = new_binary(left, op, right);
+    }
+
+    return left;
 }
 
 static ASTNode* parse_expression() {
@@ -147,7 +132,7 @@ static ASTNode* parse_statement() {
     if (current.type == TOKEN_PRINT) {
         advance_token();
         ASTNode *expr = parse_expression();
-        expect(TOKEN_SEMICOLON, "Expected ';' after print expression");
+        expect(TOKEN_SEMICOLON, "Expected ';' after expression");
         return new_print(expr);
     }
 
@@ -155,7 +140,9 @@ static ASTNode* parse_statement() {
     return NULL;
 }
 
-ASTNode* parse_program(Token (*next_token_func)()) {
+
+
+ASTNode* parse_program(Token (*next_token_func)(void)) {
     next_tok_fn = next_token_func;
     advance_token();
 
@@ -165,12 +152,15 @@ ASTNode* parse_program(Token (*next_token_func)()) {
         if (current.type == TOKEN_INVALID) {
             parser_error("Invalid token");
         }
+
         ASTNode *stmt = parse_statement();
         program_push(prog, stmt);
     }
 
     return prog;
 }
+
+
 
 void free_ast(ASTNode *n) {
     if (!n) return;
@@ -197,38 +187,4 @@ void free_ast(ASTNode *n) {
     }
 
     free(n);
-}
-
-static void indent(int depth) {
-    for (int i = 0; i < depth; i++) putchar(' ');
-}
-
-void print_ast(ASTNode *n, int depth) {
-    if (!n) return;
-
-    indent(depth);
-
-    switch (n->type) {
-        case AST_NUMBER:
-            printf("Number(%ld)\n", n->number.value);
-            break;
-
-        case AST_BINARY:
-            printf("Binary(%c)\n", n->binary.op);
-            print_ast(n->binary.left, depth + 2);
-            print_ast(n->binary.right, depth + 2);
-            break;
-
-        case AST_PRINT:
-            printf("Print\n");
-            print_ast(n->print_stmt.expr, depth + 2);
-            break;
-
-        case AST_PROGRAM:
-            printf("Program\n");
-            for (size_t i = 0; i < n->program.count; i++) {
-                print_ast(n->program.statements[i], depth + 2);
-            }
-            break;
-    }
 }

@@ -11,6 +11,8 @@ typedef enum {
     TOKEN_INVALID,
     TOKEN_STAR,
     TOKEN_SLASH,
+    TOKEN_LPAREN,
+    TOKEN_RPAREN,
 } TokenType;
 
 typedef struct {

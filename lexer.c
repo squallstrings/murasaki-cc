@@ -18,6 +18,7 @@ void init_lexer(const char *input) {
         pos = 3;
     }
 }
+
 static char peek() {
     return src[pos];
 }
@@ -51,9 +52,8 @@ Token next_token() {
 
         size_t length = pos - start;
 
-        if (length == 5 && strncmp(&src[start], "print", 5) == 0) {
+        if (length == 5 && strncmp(&src[start], "print", 5) == 0)
             return (Token){TOKEN_PRINT, 0};
-        }
 
         return (Token){TOKEN_INVALID, 0};
     }
@@ -67,15 +67,26 @@ Token next_token() {
         advance();
         return (Token){TOKEN_MINUS, 0};
     }
+
     if (c == '*') {
         advance();
         return (Token){TOKEN_STAR, 0};
-}
+    }
 
     if (c == '/') {
         advance();
         return (Token){TOKEN_SLASH, 0};
-}
+    }
+
+    if (c == '(') {
+        advance();
+        return (Token){TOKEN_LPAREN, 0};
+    }
+
+    if (c == ')') {
+        advance();
+        return (Token){TOKEN_RPAREN, 0};
+    }
 
     if (c == ';') {
         advance();
